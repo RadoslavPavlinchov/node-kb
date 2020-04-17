@@ -1,0 +1,15 @@
+{
+  "name": "nodekb",
+  "version": "1.0.0",
+  "description": "Simple knowledgebase application",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app"
+  },
+  "author": "Radoslav Pavlinchov",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "pug": "^2.0.4"
+  }
+}
