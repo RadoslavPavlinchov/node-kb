@@ -1,45 +1,124 @@
 const express = require('express');
 const path = require('path');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+
+mongoose.connect('mongodb://localhost/node_kb', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+let db = mongoose.connection;
+
+// Check connection
+db.once('open', function () {
+    console.log('Connected to MongoDB');
+})
+
+// Check for DB errors
+db.on('error', function (err) {
+    console.log(err);
+})
 
 // Init App
 const app = express();
+
+// Bring in Models
+let Article = require('./models/article');
 
 // Load View Engine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug')
 
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// parse application/json
+app.use(bodyParser.json());
+
+// Set Public Folder
+// app.use(express.static(path.join(__dirname, '/node_modules')));
+
 // Home Route
 app.get('/', function (req, res) {
-    let articles = [
-        {
-            id: 1,
-            title: 'Article One',
-            author: 'Radoslav Pavlinchov',
-            body: 'This is article one.'
-        },
-        {
-            id: 2,
-            title: 'Article Two',
-            author: 'Radoslav Pavlinchov',
-            body: 'This is article two.'
-        },
-        {
-            id: 3,
-            title: 'Article Three',
-            author: 'Radoslav Pavlinchov',
-            body: 'This is article three.'
-        },
-    ]
-    res.render('index', {
-        title:'Hello world',
-        articles: articles
-    })
-})
+    Article.find({}, function (err, articles) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.render('index', {
+                title: 'Hello world',
+                articles: articles
+            });
+        }
+    });
+});
+
+// Get Single Article
+app.get('/article/:id', function (req, res) {
+    Article.findById(req.params.id, function (err, article) {
+        res.render('article', {
+            article: article
+        });
+    });
+});
 
 // Add route
-app.get('/articles/add', function(req, res) {
+app.get('/articles/add', function (req, res) {
     res.render('add_article', {
-        title:'Add Article'
+        title: 'Add Article'
+    });
+})
+
+// Add Submit POST Route
+app.post('/articles/add', function (req, res) {
+    let article = new Article();
+    article.title = req.body.title;
+    article.author = req.body.author;
+    article.body = req.body.body;
+    article.save(function (err) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.redirect('/');
+        }
+    });
+});
+
+// Load Edit
+app.get('/article/edit/:id', function (req, res) {
+    Article.findById(req.params.id, function (err, article) {
+        res.render('edit_article', {
+            title: 'Edit Article',
+            article: article
+        });
+    });
+});
+
+// Update Submit POST Route
+app.post('/articles/edit/:id', function (req, res) {
+    let article = {};
+    article.title = req.body.title;
+    article.author = req.body.author;
+    article.body = req.body.body;
+
+    let query = { _id: req.params.id }
+
+    Article.update(query, article, function (err) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.redirect('/');
+        }
+    });
+});
+
+app.delete('/article/:id', function (req, res) {
+    let query = { _id: req.params.id }
+
+    Article.remove(query, function (err) {
+        if (err) {
+            console.log(err);
+        }
+        res.send('Success');
     })
 })
 

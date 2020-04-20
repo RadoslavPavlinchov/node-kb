@@ -9,7 +9,11 @@
   "author": "Radoslav Pavlinchov",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.19.0",
+    "bootstrap": "^4.4.1",
     "express": "^4.17.1",
+    "jquery": "^3.5.0",
+    "mongoose": "^5.9.9",
     "pug": "^2.0.4"
   }
 }
