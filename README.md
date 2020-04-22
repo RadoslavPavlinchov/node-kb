@@ -16,6 +16,6 @@ This is a knowledgebase app built with "Node.js & Express"
 ## Usage
 ### Installation
 Install the dependencies
-$ npm install
+##### $ npm install
 Run app
-$ npm start
+##### $ npm start
